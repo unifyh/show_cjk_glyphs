@@ -5,19 +5,19 @@ return {
     mod_description = {
         en = "Show CJK glyphs.",
     },
-    locale = {
-        en = "Locale",
+    lang_priority = {
+        en = "Language Priority",
     },
-    loc_zh_cn = {
-        en = "zh-CN",
+    q_zh_hans = {
+        en = "Chinese (Simplified)",
     },
-    loc_zh_tw = {
-        en = "zh-TW",
+    q_zh_hant = {
+        en = "Chinese (Traditional)",
     },
-    loc_ja = {
-        en = "ja",
+    q_ja = {
+        en = "Japanese",
     },
-    loc_ko = {
-        en = "ko",
+    q_ko = {
+        en = "Korean",
     },
 }

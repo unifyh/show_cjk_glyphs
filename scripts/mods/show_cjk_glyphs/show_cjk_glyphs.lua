@@ -1,10 +1,92 @@
 local mod = get_mod("show_cjk_glyphs")
 
-local function update_locale()
-    local locale = mod:get("locale")
-    Managers.font:set_locale(locale)
+local function get_fallback_order()
+    local q = {
+        mod:get("q_zh_hans"),
+        mod:get("q_zh_hant"),
+        mod:get("q_ja"),
+        mod:get("q_ko"),
+    }
+    local lang = {
+        "sc",
+        "tc",
+        "jp",
+        "kr",
+    }
+    for i = 1, 3 do
+        for j = 1, 4 - i do
+            if q[j] < q[j + 1] then
+                q[j], q[j + 1] = q[j + 1], q[j]
+                lang[j], lang[j + 1] = lang[j + 1], lang[j]
+            end
+        end
+    end
+    return lang
 end
 
-mod.on_all_mods_loaded = update_locale
+local FONT_TYPES = table.enum("serif", "sans_serif")
 
-mod.on_setting_changed = update_locale
+local function build_cjk_combo_font(fallback_order)
+    local machine_medium = "noto_sans_" .. fallback_order[1] .. "_black"
+    local sans_serif = {}
+    local serif = {}
+
+    local current_locale = Managers.localization and Managers.localization:language()
+    if current_locale == "ru" then
+        serif[#serif+1] = "friz_quadrata"
+    end
+
+    for _, lang in ipairs(fallback_order) do
+        sans_serif[#sans_serif+1] = "noto_sans_" .. lang .. "_bold"
+        serif[#serif+1] = "noto_sans_" .. lang .. "_black"
+    end
+
+    return {
+        machine_medium = machine_medium,
+        [FONT_TYPES.sans_serif] = sans_serif,
+        [FONT_TYPES.serif] = serif
+    }
+end
+
+local function update_font()
+    local fallback_order = get_fallback_order()
+    local font = build_cjk_combo_font(fallback_order)
+    Managers.font:_setup_font_definitions(font)
+end
+
+local font_packages = {
+    "packages/ui/fonts/slug_zh_cn",
+    "packages/ui/fonts/slug_zh_tw",
+    "packages/ui/fonts/slug_ja",
+    "packages/ui/fonts/slug_ko",
+}
+
+local function WaitAllCallbacks(n_cb, after_fn)
+    local self = {
+        n_cb_remaining = n_cb,
+        after_fn = after_fn,
+    }
+    self.update_progress = function()
+        self.n_cb_remaining = self.n_cb_remaining - 1
+        if self.n_cb_remaining <= 0 then
+            self.after_fn()
+        end
+    end
+    return self
+end
+
+local function load_font_packages()
+    local wait_all = WaitAllCallbacks(#font_packages, update_font)
+    local package_manager = Managers.package
+    for _, package in ipairs(font_packages) do
+        package_manager:load(package, "show_cjk_glyphs", wait_all.update_progress, true)
+    end
+end
+
+mod.on_all_mods_loaded = function()
+    load_font_packages()
+end
+
+mod.on_setting_changed = function()
+    update_font()
+end

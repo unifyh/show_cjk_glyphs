@@ -7,25 +7,36 @@ return {
     options = {
         widgets = {
             {
-                setting_id = "locale",
-                type = "dropdown",
-                default_value = "zh-cn",
-                options = {
+                setting_id = "lang_priority",
+                type = "group",
+                sub_widgets = {
                     {
-                        text = "loc_zh_cn",
-                        value = "zh-cn"
+                        setting_id = "q_zh_hans",
+                        type = "numeric",
+                        default_value = 1.0,
+                        range = { 0, 1 },
+                        decimals_number = 1
                     },
                     {
-                        text = "loc_zh_tw",
-                        value = "zh-tw"
+                        setting_id = "q_zh_hant",
+                        type = "numeric",
+                        default_value = 0.7,
+                        range = { 0, 1 },
+                        decimals_number = 1
                     },
                     {
-                        text = "loc_ja",
-                        value = "ja"
+                        setting_id = "q_ja",
+                        type = "numeric",
+                        default_value = 0.6,
+                        range = { 0, 1 },
+                        decimals_number = 1
                     },
                     {
-                        text = "loc_ko",
-                        value = "ko"
+                        setting_id = "q_ko",
+                        type = "numeric",
+                        default_value = 0.5,
+                        range = { 0, 1 },
+                        decimals_number = 1
                     },
                 }
             },
